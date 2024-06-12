@@ -24,6 +24,9 @@ public interface PreguntaResponseMapper extends GenericMapper<PreguntaResponseDt
     PreguntaResponseDto toDto(Pregunta pregunta);
 
     default String convertFechaCreacionToString(LocalDateTime fechaCreacion) {
+        if (fechaCreacion == null) {
+            return null;
+        }
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
         return fechaCreacion.format(formatter);
     }
