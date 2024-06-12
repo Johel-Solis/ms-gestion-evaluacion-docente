@@ -12,6 +12,7 @@ public class PreguntaResponseDto {
     private String nombre;
     private String observacion;
     private String estado;
+    private String fecha_creacion;
 
 
     
