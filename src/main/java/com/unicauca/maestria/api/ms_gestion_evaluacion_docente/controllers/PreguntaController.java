@@ -63,6 +63,12 @@ public class PreguntaController {
         return ResponseEntity.ok(preguntaService.findAll());
     }
 
+    
+    @PatchMapping("/{id}/estado")
+    public ResponseEntity<String> updateEstado(@PathVariable Long id) {
+        return ResponseEntity.ok(preguntaService.updateEstado(id));
+    }
+
 
     @PatchMapping("/eliminar-logico/{id}")
     public ResponseEntity<?> deleteLogic(@PathVariable Long id) {
