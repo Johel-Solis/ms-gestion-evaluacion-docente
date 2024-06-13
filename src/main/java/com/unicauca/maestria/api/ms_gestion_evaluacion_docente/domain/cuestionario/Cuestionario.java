@@ -29,7 +29,9 @@ public class Cuestionario {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(unique = true)
     private String nombre;
+    
     private String observacion;
 
     @Enumerated(EnumType.STRING)
@@ -49,6 +51,8 @@ public class Cuestionario {
 
     public Cuestionario() {
         estado = Estado.ACTIVO;
+        fecha_creacion = LocalDateTime.now();
+        cantidad_preguntas = 0;
     }
 
     

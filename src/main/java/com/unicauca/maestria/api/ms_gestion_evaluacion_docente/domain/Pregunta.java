@@ -29,6 +29,7 @@ public class Pregunta {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(unique = true)
     private String nombre;
     private String observacion;
 
