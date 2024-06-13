@@ -15,10 +15,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindingResult;
 
-
 import com.unicauca.maestria.api.ms_gestion_evaluacion_docente.common.enums.Estado;
+import com.unicauca.maestria.api.ms_gestion_evaluacion_docente.domain.Pregunta;
 import com.unicauca.maestria.api.ms_gestion_evaluacion_docente.domain.cuestionario.Cuestionario;
-
+import com.unicauca.maestria.api.ms_gestion_evaluacion_docente.domain.cuestionario.CuestionarioPregunta;
+import com.unicauca.maestria.api.ms_gestion_evaluacion_docente.dtos.cuestionario.CuestionarioPreguntaSaveDto;
 import com.unicauca.maestria.api.ms_gestion_evaluacion_docente.dtos.cuestionario.CuestionarioResponseDto;
 import com.unicauca.maestria.api.ms_gestion_evaluacion_docente.dtos.cuestionario.CuestionarioSaveDto;
 import com.unicauca.maestria.api.ms_gestion_evaluacion_docente.dtos.pregunta.CamposUnicosDto;
@@ -37,7 +38,7 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 @Service
-public class CuestionarioServiceImpl  implements CuestionarioService{
+public class CuestionarioServiceImpl implements CuestionarioService {
 
     private final InformacionUnicaCuestionario informacionUnicaCuestionario;
     private final CuestionarioRepository cuestionarioRepository;
@@ -46,8 +47,6 @@ public class CuestionarioServiceImpl  implements CuestionarioService{
     private final CuestionarioSaveMapper cuestionarioSaveMapper;
     private final PreguntaRepository preguntaRepository;
     private final PreguntaResponseMapper preguntaResponseMapper;
-    
-
 
     @Override
     @Transactional(readOnly = true)
@@ -58,14 +57,13 @@ public class CuestionarioServiceImpl  implements CuestionarioService{
                 .map(this::crearCuestionarioResposeDto).toList();
     }
 
-    
     @Override
     @Transactional(readOnly = true)
     public List<CuestionarioResponseDto> findAllEstado(String estado) {
         return cuestionarioRepository.findAllByEstado(estado)
                 .stream()
                 .map(this::crearCuestionarioResposeDto).toList();
-                
+
     }
 
     @Override
@@ -79,28 +77,28 @@ public class CuestionarioServiceImpl  implements CuestionarioService{
     @Override
     @Transactional(readOnly = true)
     public CuestionarioResponseDto findByNombre(String nombre) {
-       return cuestionarioRepository.findByNombre(nombre)
+        return cuestionarioRepository.findByNombre(nombre)
                 .map(this::crearCuestionarioResposeDto)
                 .orElseThrow(() -> new RuntimeException("Cuestionario no encontrada"));
-       
+
     }
 
     @Override
     @Transactional
-    public CuestionarioResponseDto save( CuestionarioSaveDto cuestionarioSaveDto, BindingResult result) {
+    public CuestionarioResponseDto save(CuestionarioSaveDto cuestionarioSaveDto, BindingResult result) {
 
         System.out.println("save");
-        
+
         if (result.hasErrors()) {
             throw new FieldErrorException(result);
         }
 
-        Map<String, String> validacionCampoUnico = validacionCampoUnico(obtenerCamposUnicos(cuestionarioSaveDto),null);
-        if(!validacionCampoUnico.isEmpty()){
+        Map<String, String> validacionCampoUnico = validacionCampoUnico(obtenerCamposUnicos(cuestionarioSaveDto), null);
+        if (!validacionCampoUnico.isEmpty()) {
             throw new FieldUniqueException(validacionCampoUnico);
         }
 
-        Cuestionario  cuestionario= cuestionarioRepository.save(cuestionarioSaveMapper.toEntity(cuestionarioSaveDto));
+        Cuestionario cuestionario = cuestionarioRepository.save(cuestionarioSaveMapper.toEntity(cuestionarioSaveDto));
         return cuestionarioResponseMapper.toDto(cuestionario);
     }
 
@@ -112,26 +110,27 @@ public class CuestionarioServiceImpl  implements CuestionarioService{
             throw new FieldErrorException(result);
         }
 
-        Cuestionario cuestionario = cuestionarioRepository.findById(id).
-                orElseThrow(() -> new ValidationException("cuestionario no encontrada con el id: " + id));
-        
-        Map<String, String> validacionCampoUnico = validacionCampoUnico(obtenerCamposUnicos(cuestionarioSaveDto), informacionUnicaCuestionario.apply(cuestionarioSaveDto));
-        if(!validacionCampoUnico.isEmpty()){
+        Cuestionario cuestionario = cuestionarioRepository.findById(id)
+                .orElseThrow(() -> new ValidationException("cuestionario no encontrada con el id: " + id));
+
+        Map<String, String> validacionCampoUnico = validacionCampoUnico(obtenerCamposUnicos(cuestionarioSaveDto),
+                informacionUnicaCuestionario.apply(cuestionarioSaveDto));
+        if (!validacionCampoUnico.isEmpty()) {
             throw new FieldUniqueException(validacionCampoUnico);
         }
 
         cuestionario = cuestionarioSaveMapper.toEntity(cuestionarioSaveDto);
         cuestionario.setId(id);
-        
+
         return cuestionarioResponseMapper.toDto(cuestionarioRepository.save(cuestionario));
     }
 
     @Override
     @Transactional
     public String updateEstado(Long id) {
-        Cuestionario cuestionario = cuestionarioRepository.findById(id).
-                orElseThrow(() -> new ResourceNotFoundException("cuestionario no encontrada"));
-        Estado estado =  cuestionario.getEstado() == Estado.ACTIVO ? Estado.INACTIVO : Estado.ACTIVO;
+        Cuestionario cuestionario = cuestionarioRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("cuestionario no encontrada"));
+        Estado estado = cuestionario.getEstado() == Estado.ACTIVO ? Estado.INACTIVO : Estado.ACTIVO;
         cuestionario.setEstado(estado);
         cuestionarioRepository.save(cuestionario);
         return "Estado actualizado";
@@ -139,9 +138,45 @@ public class CuestionarioServiceImpl  implements CuestionarioService{
 
     @Override
     @Transactional
+    public CuestionarioResponseDto addPreguntaCuestionario(CuestionarioPreguntaSaveDto cuestionarioPregunta) {
+        System.out.println("addPreguntaCuestionario");
+        System.out.println(cuestionarioPregunta);
+        System.out.println(cuestionarioPregunta.getIdCuestionario());
+
+        System.out.println(cuestionarioPregunta.getIdPreguntas().size());
+        List<Long> idsPreguntas = cuestionarioPregunta.getIdPreguntas();
+
+    
+    
+        Cuestionario cuestionario = cuestionarioRepository.findById(cuestionarioPregunta.getIdCuestionario())
+                .orElseThrow(() -> new ResourceNotFoundException("cuestionario no encontrada"));
+
+        List<Long> idsPreguntasBD = cuestionarioPreguntaRepository.findAllIdByIdCuestionario(cuestionario.getId());
+                
+        // List<Long> idsPreguntas = cuestionarioPregunta.getIdPreguntas();
+        // List<LineaInvestigacion> lineasInvestigacion = expertoLineaInvestigacionRepository
+        //         .findAllLineasInvByIdExperto(expertoBD.getId());
+
+        List<Long> idsPreguntasAEliminar = idsPreguntasBD.stream()
+                .filter(IdPreguntaDB -> !idsPreguntas.contains(IdPreguntaDB)).toList();
+
+        List<Long> idsPreguntasAsignar = idsPreguntas.stream()
+                .filter(idPregunta -> !idsPreguntasBD.contains(idPregunta)).toList();
+
+        asignarPreguntasCuestionario(cuestionario, idsPreguntasAsignar);
+
+        for (Long idPregunta : idsPreguntasAEliminar) {
+            cuestionarioPreguntaRepository.deleteByIdCuestionarioAndIdPregunta(cuestionario.getId(), idPregunta);
+
+        }
+        return crearCuestionarioResposeDto(cuestionario);
+    }
+
+    @Override
+    @Transactional
     public void deleteLogic(Long id) {
-        Cuestionario cuestionario = cuestionarioRepository.findById(id).
-                orElseThrow(() -> new ResourceNotFoundException("cuestionario no encontrada"));
+        Cuestionario cuestionario = cuestionarioRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("cuestionario no encontrada"));
         cuestionario.setEstado(Estado.INACTIVO);
         cuestionarioRepository.save(cuestionario);
     }
@@ -155,14 +190,12 @@ public class CuestionarioServiceImpl  implements CuestionarioService{
     // @Override
     // @Transactional(readOnly = true)
     // public boolean existsByNombre(String nombre) {
-    //     return preguntaRepository.existsByNombre(nombre);
+    // return preguntaRepository.existsByNombre(nombre);
     // }
 
-        
     private CamposUnicosDto obtenerCamposUnicos(CuestionarioSaveDto cuestionarioSaveDto) {
         return informacionUnicaCuestionario.apply(cuestionarioSaveDto);
     }
-
 
     private Map<String, String> validacionCampoUnico(CamposUnicosDto camposUnicos,
             CamposUnicosDto camposUnicosBD) {
@@ -191,10 +224,10 @@ public class CuestionarioServiceImpl  implements CuestionarioService{
                 }));
 
     }
+
     private <T> String mensajeException(String nombreCampo, T valorCampo) {
         return "Campo único, ya existe una categoria con la información: " + nombreCampo + ": " + valorCampo;
     }
-
 
     private CuestionarioResponseDto crearCuestionarioResposeDto(Cuestionario cuestionario) {
         List<PreguntaResponseDto> preguntas = preguntaResponseMapper
@@ -205,5 +238,19 @@ public class CuestionarioServiceImpl  implements CuestionarioService{
         return cuestionarioResponseDto;
     }
 
-    
+    private void asignarPreguntasCuestionario(Cuestionario cuestionario, List<Long> idsPreguntas) {
+        List<Pregunta> lineasInvestigacion = BuscarPreguntasCuestionario(idsPreguntas);
+        lineasInvestigacion.forEach(li -> {
+            CuestionarioPregunta cuestionarioPregunta = CuestionarioPregunta.builder()
+                    .cuestionario(cuestionario)
+                    .pregunta(li)
+                    .build();
+            cuestionarioPreguntaRepository.save(cuestionarioPregunta);
+        });
+    }
+
+    private List<Pregunta> BuscarPreguntasCuestionario(List<Long> idsPreguntas) {
+        return preguntaRepository.findAllById(idsPreguntas);
+    }
+
 }

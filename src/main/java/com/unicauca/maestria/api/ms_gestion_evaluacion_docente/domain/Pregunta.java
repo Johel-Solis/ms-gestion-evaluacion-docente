@@ -46,6 +46,7 @@ public class Pregunta {
     }
     public Pregunta() {
         estado = Estado.ACTIVO;
+        fecha_creacion = LocalDateTime.now();
     }
 
 }

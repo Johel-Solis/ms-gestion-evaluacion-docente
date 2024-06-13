@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.unicauca.maestria.api.ms_gestion_evaluacion_docente.dtos.cuestionario.CuestionarioPreguntaSaveDto;
 import com.unicauca.maestria.api.ms_gestion_evaluacion_docente.dtos.cuestionario.CuestionarioResponseDto;
 import com.unicauca.maestria.api.ms_gestion_evaluacion_docente.dtos.cuestionario.CuestionarioSaveDto;
 import com.unicauca.maestria.api.ms_gestion_evaluacion_docente.services.cuestionario.CuestionarioService;
@@ -35,6 +36,11 @@ public class CuestionarioController {
     @PostMapping
     public ResponseEntity<CuestionarioResponseDto> createCuestionario(@Valid @RequestBody CuestionarioSaveDto cuestionario, BindingResult result) {
         return ResponseEntity.status(HttpStatus.CREATED).body(cuestionarioService.save(cuestionario, result));
+    }
+
+    @PostMapping("/preguntas")
+    public ResponseEntity<CuestionarioResponseDto> addPreguntas(@RequestBody CuestionarioPreguntaSaveDto cuestionarioPregunta) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(cuestionarioService.addPreguntaCuestionario(cuestionarioPregunta));
     }
 
     @GetMapping("/{id}")

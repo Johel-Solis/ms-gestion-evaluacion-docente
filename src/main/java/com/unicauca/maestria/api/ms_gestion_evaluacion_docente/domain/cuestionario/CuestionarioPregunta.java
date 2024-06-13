@@ -32,10 +32,10 @@ public class CuestionarioPregunta {
 
     @ManyToOne
     @JoinColumn(name = "id_cuestionario")
-    private Cuestionario id_cuestionario;
+    private Cuestionario cuestionario;
 
     @ManyToOne
     @JoinColumn(name = "id_pregunta")
-    private Pregunta id_pregunta;
+    private Pregunta pregunta;
     
 }

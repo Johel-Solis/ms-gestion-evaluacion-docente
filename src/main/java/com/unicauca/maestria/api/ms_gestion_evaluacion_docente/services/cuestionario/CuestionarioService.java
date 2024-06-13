@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.validation.BindingResult;
 
+import com.unicauca.maestria.api.ms_gestion_evaluacion_docente.dtos.cuestionario.CuestionarioPreguntaSaveDto;
 import com.unicauca.maestria.api.ms_gestion_evaluacion_docente.dtos.cuestionario.CuestionarioResponseDto;
 import com.unicauca.maestria.api.ms_gestion_evaluacion_docente.dtos.cuestionario.CuestionarioSaveDto;
 
@@ -21,6 +22,8 @@ public interface CuestionarioService {
         public CuestionarioResponseDto save(CuestionarioSaveDto cuestionarioSaveDto,BindingResult result);
     
         public CuestionarioResponseDto update(Long id, CuestionarioSaveDto cestionarioSaveDto, BindingResult result);
+
+        public CuestionarioResponseDto addPreguntaCuestionario(CuestionarioPreguntaSaveDto cuestionarioPreguntaSaveDto);
         
         public String updateEstado(Long id);
     

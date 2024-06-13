@@ -11,17 +11,17 @@ import com.unicauca.maestria.api.ms_gestion_evaluacion_docente.domain.cuestionar
 
 public interface CuestionarioPreguntaRepository extends JpaRepository<CuestionarioPregunta, Long>{
     
-    @Query("SELECT cp.id_pregunta.id FROM CuestionarioPregunta cp WHERE cp.id_cuestionario.id = ?1")
+    @Query("SELECT cp.pregunta.id FROM CuestionarioPregunta cp WHERE cp.cuestionario.id = ?1")
     public List<Long> findAllIdByIdCuestionario(Long idCuestionario);
 
-    @Query("SELECT cp.id_cuestionario FROM CuestionarioPregunta cp WHERE cp.id_pregunta = ?1")
+    @Query("SELECT cp.cuestionario FROM CuestionarioPregunta cp WHERE cp.pregunta = ?1")
     public List<Long> findByIdPregunta(Long idPregunta);
 
-    @Query("SELECT cp.id_pregunta FROM CuestionarioPregunta cp WHERE cp.id_cuestionario.id = ?1")
+    @Query("SELECT cp.pregunta FROM CuestionarioPregunta cp WHERE cp.cuestionario.id = ?1")
     public List<Pregunta> findAllByIdCuestionario(Long idCuestionario);
 
 
     @Modifying
-    @Query("DELETE FROM CuestionarioPregunta cp WHERE cp.id_cuestionario.id = ?1 AND cp.id_pregunta.id = ?2")
+    @Query("DELETE FROM CuestionarioPregunta cp WHERE cp.cuestionario.id = ?1 AND cp.pregunta.id = ?2")
     public void deleteByIdCuestionarioAndIdPregunta(Long idCuestionario, Long idPregunta);
 }
