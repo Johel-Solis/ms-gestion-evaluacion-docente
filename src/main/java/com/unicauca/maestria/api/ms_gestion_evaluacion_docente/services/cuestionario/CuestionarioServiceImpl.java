@@ -169,6 +169,10 @@ public class CuestionarioServiceImpl implements CuestionarioService {
             cuestionarioPreguntaRepository.deleteByIdCuestionarioAndIdPregunta(cuestionario.getId(), idPregunta);
 
         }
+        List<Long> idsP = cuestionarioPreguntaRepository.findAllIdByIdCuestionario(cuestionario.getId());
+        cuestionario.setCantidad_preguntas(idsP.size());
+        cuestionarioRepository.save(cuestionario);
+
         return crearCuestionarioResposeDto(cuestionario);
     }
 
