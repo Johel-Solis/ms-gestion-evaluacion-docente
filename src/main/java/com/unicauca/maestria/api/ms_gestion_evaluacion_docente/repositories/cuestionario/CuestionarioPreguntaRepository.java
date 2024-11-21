@@ -6,11 +6,11 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
-import com.unicauca.maestria.api.ms_gestion_evaluacion_docente.domain.Pregunta;
-import com.unicauca.maestria.api.ms_gestion_evaluacion_docente.domain.cuestionario.CuestionarioPregunta;
+import com.unicauca.maestria.api.ms_gestion_evaluacion_docente.domain.cuestionarioPregunta.CuestionarioPregunta;
+import com.unicauca.maestria.api.ms_gestion_evaluacion_docente.domain.cuestionarioPregunta.Pregunta;
 
-public interface CuestionarioPreguntaRepository extends JpaRepository<CuestionarioPregunta, Long>{
-    
+public interface CuestionarioPreguntaRepository extends JpaRepository<CuestionarioPregunta, Long> {
+
     @Query("SELECT cp.pregunta.id FROM CuestionarioPregunta cp WHERE cp.cuestionario.id = ?1")
     public List<Long> findAllIdByIdCuestionario(Long idCuestionario);
 
@@ -20,6 +20,8 @@ public interface CuestionarioPreguntaRepository extends JpaRepository<Cuestionar
     @Query("SELECT cp.pregunta FROM CuestionarioPregunta cp WHERE cp.cuestionario.id = ?1")
     public List<Pregunta> findAllByIdCuestionario(Long idCuestionario);
 
+    @Query("SELECT cp.pregunta FROM CuestionarioPregunta cp WHERE cp.cuestionario.id = ?1 AND cp.pregunta.estado = ACTIVO")
+    public List<Pregunta> findAllByIdCuestionarioAndEstado(Long idCuestionario);
 
     @Modifying
     @Query("DELETE FROM CuestionarioPregunta cp WHERE cp.cuestionario.id = ?1 AND cp.pregunta.id = ?2")

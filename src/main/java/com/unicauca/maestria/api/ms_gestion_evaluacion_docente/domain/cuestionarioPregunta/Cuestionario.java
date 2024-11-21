@@ -1,4 +1,4 @@
-package com.unicauca.maestria.api.ms_gestion_evaluacion_docente.domain;
+package com.unicauca.maestria.api.ms_gestion_evaluacion_docente.domain.cuestionarioPregunta;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -22,15 +22,15 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 @Entity
-@Table(name = "pregunta")
-public class Pregunta {
-
+@Table(name = "cuestionarios")
+public class Cuestionario {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(unique = true)
     private String nombre;
+
     private String observacion;
 
     @Enumerated(EnumType.STRING)
@@ -40,12 +40,12 @@ public class Pregunta {
     @Column(updatable = false)
     private LocalDateTime fecha_creacion;
 
-
     public String getFecha_creacionAsString() {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yy");
         return fecha_creacion.format(formatter);
     }
-    public Pregunta() {
+
+    public Cuestionario() {
         estado = Estado.ACTIVO;
         fecha_creacion = LocalDateTime.now();
     }

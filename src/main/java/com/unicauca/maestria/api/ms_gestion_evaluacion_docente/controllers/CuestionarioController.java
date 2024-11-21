@@ -34,7 +34,8 @@ public class CuestionarioController {
       private final CuestionarioService cuestionarioService;
 
     @PostMapping
-    public ResponseEntity<CuestionarioResponseDto> createCuestionario(@Valid @RequestBody CuestionarioSaveDto cuestionario, BindingResult result) {
+    public ResponseEntity<CuestionarioResponseDto> createCuestionario(
+            @Valid @RequestBody CuestionarioSaveDto cuestionario, BindingResult result) {
         return ResponseEntity.status(HttpStatus.CREATED).body(cuestionarioService.save(cuestionario, result));
     }
 

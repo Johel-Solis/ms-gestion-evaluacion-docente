@@ -5,16 +5,16 @@ import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.unicauca.maestria.api.ms_gestion_evaluacion_docente.domain.Pregunta;
+import com.unicauca.maestria.api.ms_gestion_evaluacion_docente.domain.cuestionarioPregunta.Pregunta;
 
-public interface PreguntaRepository extends JpaRepository<Pregunta, Long>{
+public interface PreguntaRepository extends JpaRepository<Pregunta, Long> {
 
     List<Pregunta> findAllByEstado(String estado);
-    
-    public  boolean existsByNombre(String nombre) ;  
+
+    public boolean existsByNombre(String nombre);
 
     Optional<Pregunta> findByNombre(String nombre);
 
     Optional<Pregunta> findById(Long id);
-    
+
 }

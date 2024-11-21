@@ -18,7 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindingResult;
 
 import com.unicauca.maestria.api.ms_gestion_evaluacion_docente.common.enums.Estado;
-import com.unicauca.maestria.api.ms_gestion_evaluacion_docente.domain.Pregunta;
+import com.unicauca.maestria.api.ms_gestion_evaluacion_docente.domain.cuestionarioPregunta.Pregunta;
 import com.unicauca.maestria.api.ms_gestion_evaluacion_docente.dtos.pregunta.CamposUnicosDto;
 import com.unicauca.maestria.api.ms_gestion_evaluacion_docente.dtos.pregunta.PreguntaResponseDto;
 import com.unicauca.maestria.api.ms_gestion_evaluacion_docente.dtos.pregunta.PreguntaSaveDto;
@@ -35,12 +35,10 @@ import lombok.RequiredArgsConstructor;
 @Service
 public class PreguntaServicioImpl implements PreguntaService {
 
-
     private final InformacionUnicaPregunta informacionUnicaPregunta;
     private final PreguntaRepository preguntaRepository;
     private final PreguntaResponseMapper preguntaResponseMapper;
     private final PreguntaSaveMapper preguntaSaveMapper;
-
 
     @Override
     @Transactional(readOnly = true)
@@ -49,7 +47,6 @@ public class PreguntaServicioImpl implements PreguntaService {
         return preguntaResponseMapper.toDtoList(preguntaRepository.findAll());
     }
 
-    
     @Override
     @Transactional(readOnly = true)
     public List<PreguntaResponseDto> findAllEstado(String estado) {
@@ -72,21 +69,21 @@ public class PreguntaServicioImpl implements PreguntaService {
 
     @Override
     @Transactional
-    public PreguntaResponseDto save( PreguntaSaveDto preguntaSaveDto, BindingResult result) {
+    public PreguntaResponseDto save(PreguntaSaveDto preguntaSaveDto, BindingResult result) {
 
         System.out.println("save");
-        
+
         if (result.hasErrors()) {
             throw new FieldErrorException(result);
         }
 
-        Map<String, String> validacionCampoUnico = validacionCampoUnico(obtenerCamposUnicos(preguntaSaveDto),null);
-        if(!validacionCampoUnico.isEmpty()){
+        Map<String, String> validacionCampoUnico = validacionCampoUnico(obtenerCamposUnicos(preguntaSaveDto), null);
+        if (!validacionCampoUnico.isEmpty()) {
             throw new FieldUniqueException(validacionCampoUnico);
         }
 
         // Pregunta pregunta = preguntaSaveMapper.toEntity(preguntaSaveDto);
-        Pregunta  pregunta= preguntaRepository.save(preguntaSaveMapper.toEntity(preguntaSaveDto));
+        Pregunta pregunta = preguntaRepository.save(preguntaSaveMapper.toEntity(preguntaSaveDto));
         return preguntaResponseMapper.toDto(pregunta);
     }
 
@@ -98,26 +95,27 @@ public class PreguntaServicioImpl implements PreguntaService {
             throw new FieldErrorException(result);
         }
 
-        Pregunta pregunta = preguntaRepository.findById(id).
-                orElseThrow(() -> new ValidationException("Pregunta no encontrada con el id: " + id));
-        
-        Map<String, String> validacionCampoUnico = validacionCampoUnico(obtenerCamposUnicos(preguntaSaveDto), informacionUnicaPregunta.apply(preguntaSaveDto));
-        if(!validacionCampoUnico.isEmpty()){
+        Pregunta pregunta = preguntaRepository.findById(id)
+                .orElseThrow(() -> new ValidationException("Pregunta no encontrada con el id: " + id));
+
+        Map<String, String> validacionCampoUnico = validacionCampoUnico(obtenerCamposUnicos(preguntaSaveDto),
+                informacionUnicaPregunta.apply(preguntaSaveDto));
+        if (!validacionCampoUnico.isEmpty()) {
             throw new FieldUniqueException(validacionCampoUnico);
         }
 
         pregunta = preguntaSaveMapper.toEntity(preguntaSaveDto);
         pregunta.setId(id);
-        
+
         return preguntaResponseMapper.toDto(preguntaRepository.save(pregunta));
     }
 
     @Override
     @Transactional
     public String updateEstado(Long id) {
-        Pregunta pregunta = preguntaRepository.findById(id).
-                orElseThrow(() -> new ResourceNotFoundException("Pregunta no encontrada"));
-        Estado estado =  pregunta.getEstado() == Estado.ACTIVO ? Estado.INACTIVO : Estado.ACTIVO;
+        Pregunta pregunta = preguntaRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Pregunta no encontrada"));
+        Estado estado = pregunta.getEstado() == Estado.ACTIVO ? Estado.INACTIVO : Estado.ACTIVO;
         pregunta.setEstado(estado);
         preguntaRepository.save(pregunta);
         return "Estado actualizado";
@@ -126,8 +124,8 @@ public class PreguntaServicioImpl implements PreguntaService {
     @Override
     @Transactional
     public void deleteLogic(Long id) {
-        Pregunta pregunta = preguntaRepository.findById(id).
-                orElseThrow(() -> new ResourceNotFoundException("Pregunta no encontrada"));
+        Pregunta pregunta = preguntaRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Pregunta no encontrada"));
         pregunta.setEstado(Estado.INACTIVO);
         preguntaRepository.save(pregunta);
     }
@@ -141,14 +139,12 @@ public class PreguntaServicioImpl implements PreguntaService {
     // @Override
     // @Transactional(readOnly = true)
     // public boolean existsByNombre(String nombre) {
-    //     return preguntaRepository.existsByNombre(nombre);
+    // return preguntaRepository.existsByNombre(nombre);
     // }
 
-        
     private CamposUnicosDto obtenerCamposUnicos(PreguntaSaveDto preguntaSaveDto) {
         return informacionUnicaPregunta.apply(preguntaSaveDto);
     }
-
 
     private Map<String, String> validacionCampoUnico(CamposUnicosDto camposUnicos,
             CamposUnicosDto camposUnicosBD) {
@@ -177,8 +173,9 @@ public class PreguntaServicioImpl implements PreguntaService {
                 }));
 
     }
+
     private <T> String mensajeException(String nombreCampo, T valorCampo) {
         return "Campo único, ya existe una categoria con la información: " + nombreCampo + ": " + valorCampo;
     }
-    
+
 }

@@ -9,22 +9,20 @@ import java.time.format.DateTimeFormatter;
 
 import org.mapstruct.InjectionStrategy;
 
-import com.unicauca.maestria.api.ms_gestion_evaluacion_docente.domain.cuestionario.Cuestionario;
+import com.unicauca.maestria.api.ms_gestion_evaluacion_docente.domain.cuestionarioPregunta.Cuestionario;
 import com.unicauca.maestria.api.ms_gestion_evaluacion_docente.dtos.cuestionario.CuestionarioResponseDto;
 import com.unicauca.maestria.api.ms_gestion_evaluacion_docente.mappers.GenericMapper;
 
-@Mapper(injectionStrategy = InjectionStrategy.CONSTRUCTOR,
-        componentModel = "spring")
-public interface CuestionarioResponseMapper extends GenericMapper<CuestionarioResponseDto, Cuestionario>{
+@Mapper(injectionStrategy = InjectionStrategy.CONSTRUCTOR, componentModel = "spring")
+public interface CuestionarioResponseMapper extends GenericMapper<CuestionarioResponseDto, Cuestionario> {
 
-    @Override
-    // @Mapping(target = "cantidad_preguntas", expression = "java(entity.getPreguntas().size())")
-    
-     @Mappings({
-        @Mapping(target = "fecha_creacion", expression = "java(convertFechaCreacionToString(cuestionario.getFecha_creacion()))"),
-        @Mapping(target = "preguntas", ignore = true)
+    @Mappings({
+            @Mapping(target = "fecha_creacion", expression = "java(convertFechaCreacionToString(cuestionario.getFecha_creacion()))"),
+            @Mapping(target = "preguntas", ignore = true),
+            @Mapping(target = "cantidad_preguntas", ignore = true)
     })
     CuestionarioResponseDto toDto(Cuestionario cuestionario);
+
     default String convertFechaCreacionToString(LocalDateTime fechaCreacion) {
         if (fechaCreacion == null) {
             return null;
@@ -33,5 +31,4 @@ public interface CuestionarioResponseMapper extends GenericMapper<CuestionarioRe
         return fechaCreacion.format(formatter);
     }
 
-    
 }

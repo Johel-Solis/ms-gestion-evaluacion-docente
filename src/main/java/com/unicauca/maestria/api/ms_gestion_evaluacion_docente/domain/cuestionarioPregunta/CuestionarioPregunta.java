@@ -1,5 +1,4 @@
-package com.unicauca.maestria.api.ms_gestion_evaluacion_docente.domain.cuestionario;
-
+package com.unicauca.maestria.api.ms_gestion_evaluacion_docente.domain.cuestionarioPregunta;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -10,19 +9,18 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
-import com.unicauca.maestria.api.ms_gestion_evaluacion_docente.domain.Pregunta;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Data 
-@NoArgsConstructor @AllArgsConstructor
-@Builder 
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 @Entity
-@Table(name = "cuestionario_pregunta", uniqueConstraints = {
-    @UniqueConstraint(columnNames = {"id_cuestionario", "id_pregunta"})
+@Table(name = "preguntas_cuestionarios", uniqueConstraints = {
+        @UniqueConstraint(columnNames = { "id_cuestionario", "id_pregunta" })
 })
 public class CuestionarioPregunta {
 
@@ -37,5 +35,5 @@ public class CuestionarioPregunta {
     @ManyToOne
     @JoinColumn(name = "id_pregunta")
     private Pregunta pregunta;
-    
+
 }

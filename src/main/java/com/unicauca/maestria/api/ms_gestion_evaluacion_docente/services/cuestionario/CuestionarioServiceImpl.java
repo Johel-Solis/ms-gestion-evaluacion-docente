@@ -16,9 +16,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindingResult;
 
 import com.unicauca.maestria.api.ms_gestion_evaluacion_docente.common.enums.Estado;
-import com.unicauca.maestria.api.ms_gestion_evaluacion_docente.domain.Pregunta;
-import com.unicauca.maestria.api.ms_gestion_evaluacion_docente.domain.cuestionario.Cuestionario;
-import com.unicauca.maestria.api.ms_gestion_evaluacion_docente.domain.cuestionario.CuestionarioPregunta;
+import com.unicauca.maestria.api.ms_gestion_evaluacion_docente.domain.cuestionarioPregunta.Cuestionario;
+import com.unicauca.maestria.api.ms_gestion_evaluacion_docente.domain.cuestionarioPregunta.CuestionarioPregunta;
+import com.unicauca.maestria.api.ms_gestion_evaluacion_docente.domain.cuestionarioPregunta.Pregunta;
 import com.unicauca.maestria.api.ms_gestion_evaluacion_docente.dtos.cuestionario.CuestionarioPreguntaSaveDto;
 import com.unicauca.maestria.api.ms_gestion_evaluacion_docente.dtos.cuestionario.CuestionarioResponseDto;
 import com.unicauca.maestria.api.ms_gestion_evaluacion_docente.dtos.cuestionario.CuestionarioSaveDto;
@@ -87,17 +87,17 @@ public class CuestionarioServiceImpl implements CuestionarioService {
     @Transactional
     public CuestionarioResponseDto save(CuestionarioSaveDto cuestionarioSaveDto, BindingResult result) {
 
-        System.out.println("save");
+        System.out.println("save\n\n");
 
         if (result.hasErrors()) {
             throw new FieldErrorException(result);
         }
-
+        System.out.println("validacion\n\n");
         Map<String, String> validacionCampoUnico = validacionCampoUnico(obtenerCamposUnicos(cuestionarioSaveDto), null);
         if (!validacionCampoUnico.isEmpty()) {
             throw new FieldUniqueException(validacionCampoUnico);
         }
-
+        System.out.println("transformacion\n\n");
         Cuestionario cuestionario = cuestionarioRepository.save(cuestionarioSaveMapper.toEntity(cuestionarioSaveDto));
         return cuestionarioResponseMapper.toDto(cuestionario);
     }
@@ -146,16 +146,15 @@ public class CuestionarioServiceImpl implements CuestionarioService {
         System.out.println(cuestionarioPregunta.getIdPreguntas().size());
         List<Long> idsPreguntas = cuestionarioPregunta.getIdPreguntas();
 
-    
-    
         Cuestionario cuestionario = cuestionarioRepository.findById(cuestionarioPregunta.getIdCuestionario())
                 .orElseThrow(() -> new ResourceNotFoundException("cuestionario no encontrada"));
 
         List<Long> idsPreguntasBD = cuestionarioPreguntaRepository.findAllIdByIdCuestionario(cuestionario.getId());
-                
+
         // List<Long> idsPreguntas = cuestionarioPregunta.getIdPreguntas();
-        // List<LineaInvestigacion> lineasInvestigacion = expertoLineaInvestigacionRepository
-        //         .findAllLineasInvByIdExperto(expertoBD.getId());
+        // List<LineaInvestigacion> lineasInvestigacion =
+        // expertoLineaInvestigacionRepository
+        // .findAllLineasInvByIdExperto(expertoBD.getId());
 
         List<Long> idsPreguntasAEliminar = idsPreguntasBD.stream()
                 .filter(IdPreguntaDB -> !idsPreguntas.contains(IdPreguntaDB)).toList();
@@ -169,8 +168,9 @@ public class CuestionarioServiceImpl implements CuestionarioService {
             cuestionarioPreguntaRepository.deleteByIdCuestionarioAndIdPregunta(cuestionario.getId(), idPregunta);
 
         }
-        List<Long> idsP = cuestionarioPreguntaRepository.findAllIdByIdCuestionario(cuestionario.getId());
-        cuestionario.setCantidad_preguntas(idsP.size());
+        // List<Long> idsP =
+        // cuestionarioPreguntaRepository.findAllIdByIdCuestionario(cuestionario.getId());
+        // cuestionario.setCantidad_preguntas(idsP.size());
         cuestionarioRepository.save(cuestionario);
 
         return crearCuestionarioResposeDto(cuestionario);
@@ -239,6 +239,7 @@ public class CuestionarioServiceImpl implements CuestionarioService {
 
         CuestionarioResponseDto cuestionarioResponseDto = cuestionarioResponseMapper.toDto(cuestionario);
         cuestionarioResponseDto.setPreguntas(preguntas);
+        cuestionarioResponseDto.setCantidad_preguntas(preguntas.size());
         return cuestionarioResponseDto;
     }
 

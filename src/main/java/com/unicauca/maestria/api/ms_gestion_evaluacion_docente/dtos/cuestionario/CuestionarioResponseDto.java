@@ -10,7 +10,8 @@ import lombok.Builder;
 import lombok.Data;
 
 @Data
-@AllArgsConstructor @Builder
+@AllArgsConstructor
+@Builder
 public class CuestionarioResponseDto {
 
     private Long id;
@@ -21,10 +22,9 @@ public class CuestionarioResponseDto {
     private String fecha_creacion;
     private List<PreguntaResponseDto> preguntas;
 
-
     public CuestionarioResponseDto() {
-        preguntas=new ArrayList<>();
+        preguntas = new ArrayList<>();
+        cantidad_preguntas = 0;
     }
 
-    
 }
