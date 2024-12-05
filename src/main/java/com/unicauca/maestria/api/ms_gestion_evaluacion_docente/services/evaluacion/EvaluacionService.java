@@ -29,12 +29,11 @@ public interface EvaluacionService {
     public ListEvaluacionCursoDto getCursosEvaluacionEstudiante(Long idEstudiante);
 
     public List<EvaluacionEstadisticaCursoDto> getEvaluacionEstadistica(Long idEvaluacion);
-    
-    public EvaluacionEstadisticaDocenteDto getEstadisticaDocente(Long idEvaluacion,Long idAsignatura, Long idDocente);
+
+    public EvaluacionEstadisticaDocenteDto getEstadisticaDocente(Long idEvaluacion, Long idAsignatura, Long idDocente);
 
     public List<AsignaturaResponseDto> getListAsignaturaByEvaluacion(Long idEvaluacion);
 
     public List<DocenteResponseDto> getListDocenteByAsignaturaEvaluacion(Long idEvaluacion, Long idAsignatura);
-    pu
 
 }
