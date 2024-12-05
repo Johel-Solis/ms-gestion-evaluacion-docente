@@ -24,4 +24,10 @@ public interface MatriculaRepository extends JpaRepository<Matricula, Long> {
     @Query("select count(m.id) from Matricula m where m.anio = ?1 and m.periodo = ?2 and m.estado = 1")
     public int countEstudiantesMatriculados(int anio, int periodo);
 
+    @Query("select distinct m.curso from Matricula m where m.anio = ?1 and m.periodo = ?2 and m.estado = 1 and m.id_estudiante = ?3")
+    public List<Curso> findCursosByAnioAndPeriodoAndIdEstudiante(int anio, int periodo, Long idEstudiante);
+
+    @Query("select count(m.id_estudiante) from Matricula m where m.anio =?1 and m.periodo =?2 and m.curso.id =?3 and m.estado= 1")
+    public int countEstudiantesByCursoAndAnioAndPeriodo(int anio, int periodo, Long idCurso);
+
 }

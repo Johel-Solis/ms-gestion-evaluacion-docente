@@ -15,7 +15,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.unicauca.maestria.api.ms_gestion_evaluacion_docente.dtos.asignaturaCursos.AsignaturaResponseDto;
+import com.unicauca.maestria.api.ms_gestion_evaluacion_docente.dtos.docente.DocenteResponseDto;
 import com.unicauca.maestria.api.ms_gestion_evaluacion_docente.dtos.evaluacion.EvaluacionDetailDto;
+import com.unicauca.maestria.api.ms_gestion_evaluacion_docente.dtos.evaluacion.EvaluacionEstadisticaCursoDto;
+import com.unicauca.maestria.api.ms_gestion_evaluacion_docente.dtos.evaluacion.EvaluacionEstadisticaDocenteDto;
 import com.unicauca.maestria.api.ms_gestion_evaluacion_docente.dtos.evaluacion.EvaluacionResponseDto;
 import com.unicauca.maestria.api.ms_gestion_evaluacion_docente.dtos.evaluacion.EvaluacionRespuetaSaveDto;
 import com.unicauca.maestria.api.ms_gestion_evaluacion_docente.dtos.evaluacion.EvaluacionSaveDto;
@@ -26,7 +30,6 @@ import com.unicauca.maestria.api.ms_gestion_evaluacion_docente.services.evaluaci
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-
 
 @RequiredArgsConstructor
 @RestController
@@ -85,39 +88,54 @@ public class EvaluacionController {
         return ResponseEntity.ok(entity);
     }
 
-    //NO IMPLEMENTADO
     @GetMapping("/cursosEvaluacion/")
     public ResponseEntity<ListEvaluacionCursoDto> getEvaluacionCursosEstudiante(@RequestParam Long id_estudiante) {
         ListEvaluacionCursoDto ecvdto = evaluacionService.getCursosEvaluacionEstudiante(id_estudiante);
         return ResponseEntity.ok(ecvdto);
     }
-    
 
-    
     @PostMapping("/respuesta")
     public ResponseEntity<String> postMethodName(@RequestBody EvaluacionRespuetaSaveDto evaluacionRespuesta) {
-        System.out.println("EvaluacionRespuetaSaveDto: " + evaluacionRespuesta+ "\n\n");
-        if(respuestaEstudianteService.saveRespuestaEstudiante(evaluacionRespuesta)){
+        System.out.println("EvaluacionRespuetaSaveDto: " + evaluacionRespuesta + "\n\n");
+        if (respuestaEstudianteService.saveRespuestaEstudiante(evaluacionRespuesta)) {
             return ResponseEntity.ok().build();
         }
         return ResponseEntity.badRequest().build();
 
-    
-    }
-    
-    //NO IMPLEMENTADO
-    @GetMapping("/estaditica/docente/{idEvaluacion}/")
-    public ResponseEntity<?> getEstadisticaDocente(@RequestParam Long id_evaluacion,@RequestParam Long idasignatura, @RequestParam Long docente) {
-        // return ResponseEntity.ok(evaluacionService.getEstadisticaDocente(idasignatura, docente));
-        return ResponseEntity.ok().build();
     }
 
-    //NO IMPLEMENTADO
-    @GetMapping("/estaditica/cursos/{idEvaluacion}")
-    public ResponseEntity<?> getEstadisticaCursos(@RequestParam Long id_evaluacion) {
-        // return ResponseEntity.ok(evaluacionService.getEstadisticaCursos(id_evaluacion));
-        return ResponseEntity.ok().build();
+    @GetMapping("/asignatura/")
+    public ResponseEntity<List<AsignaturaResponseDto>> getAsignaturasEvaluacion(@RequestParam Long id_evaluacion) {
+        List<AsignaturaResponseDto> asignaturas = evaluacionService.getListAsignaturaByEvaluacion(id_evaluacion);
+        return ResponseEntity.ok(asignaturas);
     }
-    
-    
+
+    @GetMapping("/asignatura/docente/")
+    public ResponseEntity<List<DocenteResponseDto>> getDocenteAsignaturaEvaluacion(@RequestParam Long id_evaluacion,
+            @RequestParam Long id_asignatura) {
+        List<DocenteResponseDto> docentes = evaluacionService.getListDocenteByAsignaturaEvaluacion(id_evaluacion,
+                id_asignatura);
+        return ResponseEntity.ok(docentes);
+    }
+
+    @GetMapping("/estadistica/docente/")
+    public ResponseEntity<EvaluacionEstadisticaDocenteDto> getEstadisticaDocente(@RequestParam Long id_evaluacion,
+            @RequestParam Long id_asignatura,
+            @RequestParam Long id_docente) {
+        EvaluacionEstadisticaDocenteDto estadistica = evaluacionService.getEstadisticaDocente(id_evaluacion,
+                id_asignatura, id_docente);
+        // ResponseEntity.ok(evaluacionService.getEstadisticaDocente(idasignatura,
+        // docente));
+
+        return ResponseEntity.ok(estadistica);
+    }
+
+    @GetMapping("/estadistica/")
+    public ResponseEntity<List<EvaluacionEstadisticaCursoDto>> getEstadisticaEvaluacion(
+            @RequestParam Long id_evaluacion) {
+        List<EvaluacionEstadisticaCursoDto> estadisticas = evaluacionService.getEvaluacionEstadistica(id_evaluacion);
+        // ResponseEntity.ok(evaluacionService.getEstadisticaCursos(id_evaluacion));
+        return ResponseEntity.ok(estadisticas);
+    }
+
 }

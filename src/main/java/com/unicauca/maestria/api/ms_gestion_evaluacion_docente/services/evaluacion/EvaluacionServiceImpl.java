@@ -1,5 +1,7 @@
 package com.unicauca.maestria.api.ms_gestion_evaluacion_docente.services.evaluacion;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.time.Year;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -12,19 +14,26 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
 
 import com.unicauca.maestria.api.ms_gestion_evaluacion_docente.common.enums.Estado;
+import com.unicauca.maestria.api.ms_gestion_evaluacion_docente.domain.asignatura.Asignatura;
 import com.unicauca.maestria.api.ms_gestion_evaluacion_docente.domain.cuestionarioPregunta.Cuestionario;
+import com.unicauca.maestria.api.ms_gestion_evaluacion_docente.domain.cuestionarioPregunta.Pregunta;
 import com.unicauca.maestria.api.ms_gestion_evaluacion_docente.domain.curso.Curso;
 import com.unicauca.maestria.api.ms_gestion_evaluacion_docente.domain.curso.CursoDocente;
 import com.unicauca.maestria.api.ms_gestion_evaluacion_docente.domain.evaluacion.EvaluacionDocente;
 import com.unicauca.maestria.api.ms_gestion_evaluacion_docente.domain.evaluacion.EvaluacionRespuesta;
 import com.unicauca.maestria.api.ms_gestion_evaluacion_docente.domain.evaluacion.EvaluacionCursoDocente;
 import com.unicauca.maestria.api.ms_gestion_evaluacion_docente.dtos.asignaturaCursos.AreaFormacionResponseDto;
+import com.unicauca.maestria.api.ms_gestion_evaluacion_docente.dtos.asignaturaCursos.AsignaturaResponseDto;
 import com.unicauca.maestria.api.ms_gestion_evaluacion_docente.dtos.asignaturaCursos.CursoResponseDto;
+import com.unicauca.maestria.api.ms_gestion_evaluacion_docente.dtos.docente.DocenteResponseDto;
 import com.unicauca.maestria.api.ms_gestion_evaluacion_docente.dtos.evaluacion.EvaluacionCursoDto;
 import com.unicauca.maestria.api.ms_gestion_evaluacion_docente.dtos.evaluacion.EvaluacionDetailDto;
+import com.unicauca.maestria.api.ms_gestion_evaluacion_docente.dtos.evaluacion.EvaluacionEstadisticaCursoDto;
+import com.unicauca.maestria.api.ms_gestion_evaluacion_docente.dtos.evaluacion.EvaluacionEstadisticaDocenteDto;
 import com.unicauca.maestria.api.ms_gestion_evaluacion_docente.dtos.evaluacion.EvaluacionResponseDto;
 import com.unicauca.maestria.api.ms_gestion_evaluacion_docente.dtos.evaluacion.EvaluacionSaveDto;
 import com.unicauca.maestria.api.ms_gestion_evaluacion_docente.dtos.evaluacion.ListEvaluacionCursoDto;
+import com.unicauca.maestria.api.ms_gestion_evaluacion_docente.dtos.pregunta.PromedioRespuestaDTO;
 import com.unicauca.maestria.api.ms_gestion_evaluacion_docente.mappers.evaluacion.EvaluacionSaveMapper;
 import com.unicauca.maestria.api.ms_gestion_evaluacion_docente.repositories.MatriculaRepository;
 import com.unicauca.maestria.api.ms_gestion_evaluacion_docente.repositories.Curso.CursoDocenteRepository;
@@ -32,6 +41,7 @@ import com.unicauca.maestria.api.ms_gestion_evaluacion_docente.repositories.cues
 import com.unicauca.maestria.api.ms_gestion_evaluacion_docente.repositories.evaluacion.EvaluacionCursoDocenteRepository;
 import com.unicauca.maestria.api.ms_gestion_evaluacion_docente.repositories.evaluacion.EvaluacionRepository;
 import com.unicauca.maestria.api.ms_gestion_evaluacion_docente.repositories.evaluacion.EvaluacionRespuestaRepositry;
+import com.unicauca.maestria.api.ms_gestion_evaluacion_docente.repositories.pregunta.PreguntaRepository;
 import com.unicauca.maestria.api.ms_gestion_evaluacion_docente.services.curso.CursoService;
 
 import lombok.RequiredArgsConstructor;
@@ -48,6 +58,7 @@ public class EvaluacionServiceImpl implements EvaluacionService {
     private final EvaluacionSaveMapper evaluacionSaveMapper;
     private final CuestionarioRepository cuestionarioRepository;
     private final EvaluacionRespuestaRepositry evaluacionRespuestaRepository;
+    private final PreguntaRepository preguntaRepository;
     // private final CursoDocenteRepository cursoDocenteRepository;
 
     @Override
@@ -62,9 +73,9 @@ public class EvaluacionServiceImpl implements EvaluacionService {
             throw new IllegalArgumentException("Error en los datos de la evaluación");
         }
         EvaluacionDocente eval = evaluacionRepository.findByEstado(Estado.ACTIVO.toString());
-        // if (eval != null) {
-        // throw new IllegalArgumentException("Ya existe una evaluación activa");
-        // }
+        if (eval != null) {
+            throw new IllegalArgumentException("Ya existe una evaluación activa");
+        }
 
         System.out.println("guardado en la base de datoos\n\n");
         EvaluacionDocente ev = evaluacionSaveMapper.toEntity(evaluacion);
@@ -73,13 +84,13 @@ public class EvaluacionServiceImpl implements EvaluacionService {
             throw new IllegalArgumentException("Cuestionario no encontrado");
         }
         ev.setCuestionario(cuestionario);
-        System.out.println("guardado en la base de datoos\n\n" + ev);
-        // EvaluacionDocente evaluacionEntity = evaluacionRepository.save(ev);
+        // System.out.println("guardado en la base de datoos\n\n" + ev);
+        EvaluacionDocente evaluacionEntity = evaluacionRepository.save(ev);
         List<EvaluacionCursoDocente> ecds = saveEvaluacionCursoDocente(evaluacion.getPeriodo(), evaluacion.getAnio(),
-                eval);
+                evaluacionEntity);
 
         System.err.println("Evaluaciones guardadas: " + ecds.size());
-        return createEvaluacionResponseDto(eval);
+        return createEvaluacionResponseDto(evaluacionEntity);
     }
 
     private List<EvaluacionCursoDocente> saveEvaluacionCursoDocente(int periodo, int anio,
@@ -199,18 +210,16 @@ public class EvaluacionServiceImpl implements EvaluacionService {
         System.err.println("evaluacionDocente\n\n" + evaluacionDocente.getAnio());
 
         // 2. obtener cursos del estudiante
-        List<Curso> cursos = matriculaRepository.findCursosByAnioAndPeriodo(evaluacionDocente.getAnio(),
-                evaluacionDocente.getPeriodo());
+        List<Curso> cursos = matriculaRepository.findCursosByAnioAndPeriodoAndIdEstudiante(evaluacionDocente.getAnio(),
+                evaluacionDocente.getPeriodo(), idEstudiante);
         System.err.println("cursos\n\n" + cursos.size());
         // 3. obtener cursos evaluados
         List<EvaluacionCursoDto> cursosEvaluados = new ArrayList<>();
 
         for (Curso curso : cursos) {
 
-            
-
             List<CursoDocente> cursoDocentes = curso.getCursoDocentes();
-            
+
             for (CursoDocente cursoDocente : cursoDocentes) {
                 EvaluacionCursoDto evaluacionCursoDto = new EvaluacionCursoDto();
 
@@ -220,24 +229,18 @@ public class EvaluacionServiceImpl implements EvaluacionService {
 
                 evaluacionCursoDto.setDocente(docente);
 
-               
-
                 EvaluacionCursoDocente evaluacionCursoDocente = evaluacionCursoDocenteRepository
                         .findByCursoDocenteAndEvaluacion(cursoDocente.getId(), evaluacionDocente.getId());
-
-               
 
                 evaluacionCursoDto.setIdEvaluacionCurso(evaluacionCursoDocente.getId());
 
                 String estado = calculateState(evaluacionCursoDocente.getId(), idEstudiante);
-               
+
                 evaluacionCursoDto.setEstado(estado);
 
                 float nota = calculateGrade(evaluacionCursoDocente.getId(), idEstudiante);
-               
 
                 evaluacionCursoDto.setNota(nota);
-               
 
                 cursosEvaluados.add(evaluacionCursoDto);
             }
@@ -249,17 +252,14 @@ public class EvaluacionServiceImpl implements EvaluacionService {
     }
 
     private float calculateGrade(Long idEvaluacionCursoDocente, Long idEstudiante) {
-        List<EvaluacionRespuesta> listEV = evaluacionRespuestaRepository
-                .findAllByEstudianteAndEvaluacionCursoDocente(idEstudiante, idEvaluacionCursoDocente);
-        if (listEV.size() > 0) {
-            float nota = 0;
-            for (EvaluacionRespuesta ev : listEV) {
-                System.err.println("ev.getValorRespuesta()\n\n" + ev.getValorRespuesta());
-                nota += ev.getValorRespuesta();
-            }
-            return nota / listEV.size();
-        }
-        return 0;
+        Double result = evaluacionRespuestaRepository
+                .findAverageValorRespuestaByEvaluacionCursoDocenteAndEstudiante(idEvaluacionCursoDocente,
+                        idEstudiante);
+        float nota = result != null ? result.floatValue() : 0;
+
+        System.err.println("ev.getValorRespuesta()\n\n" + nota);
+        return nota;
+
     }
 
     private String calculateState(Long idEvaluacionCursoDocente, Long idEstudiante) {
@@ -270,4 +270,123 @@ public class EvaluacionServiceImpl implements EvaluacionService {
         }
         return "Pendiente";
     }
+
+    @Override
+    public List<EvaluacionEstadisticaCursoDto> getEvaluacionEstadistica(Long idEvaluacion) {
+        // 1. filtrar evaluacion_curso_docente por idEvaluacion
+        List<EvaluacionCursoDocente> evaluacionCursoDocentes = evaluacionCursoDocenteRepository
+                .findAllByIdEvaluacion(idEvaluacion);
+
+        List<EvaluacionEstadisticaCursoDto> estadisticas = new ArrayList<>();
+        for (EvaluacionCursoDocente evaluacionCursoDocente : evaluacionCursoDocentes) {
+            EvaluacionEstadisticaCursoDto estadistica = new EvaluacionEstadisticaCursoDto();
+            System.err.println("evaluacionCursoDocente\n\n" + evaluacionCursoDocente.getId());
+            estadistica.setAsignatura(evaluacionCursoDocente.getAsignatura().getNombre_asignatura());
+            estadistica.setDocente(evaluacionCursoDocente.getCursoDocente().getDocente().getPersona().getNombre() + " "
+                    + evaluacionCursoDocente.getCursoDocente().getDocente().getPersona().getApellido());
+            estadistica.setTotalRespondidas(evaluacionRespuestaRepository
+                    .countEstudiantesByEvaluacionCursoDocente(evaluacionCursoDocente.getId()));
+            estadistica.setTotalEvaluaciones(matriculaRepository
+                    .countEstudiantesByCursoAndAnioAndPeriodo(evaluacionCursoDocente.getEvaluacion().getAnio(),
+                            evaluacionCursoDocente.getEvaluacion().getPeriodo(),
+                            evaluacionCursoDocente.getCursoDocente().getCurso().getId()));
+            Double result = evaluacionRespuestaRepository
+                    .findAverageValorRespuestaByEvaluacionCursoDocente(evaluacionCursoDocente.getId());
+            float nota = result != null ? result.floatValue() : 0;
+            estadistica.setNotaPromedio(nota);
+
+            estadisticas.add(estadistica);
+            System.out.println("estadistica\n\n" + estadistica.toString());
+
+        }
+
+        return estadisticas;
+    }
+
+    @Override
+    public EvaluacionEstadisticaDocenteDto getEstadisticaDocente(Long idEvaluacion, Long idAsignatura, Long idDocente) {
+        List<EvaluacionCursoDocente> idEvaluacionCursoDocenteList = evaluacionCursoDocenteRepository
+                .findIdCursoDocenteByEvaluacionAndAsignaturaAndDocente(idEvaluacion, idAsignatura, idDocente);
+        System.out.println("idEvaluacionCursoDocenteList\n\n" + idEvaluacionCursoDocenteList.size());
+        EvaluacionCursoDocente evaluacionCursoDocente = idEvaluacionCursoDocenteList.isEmpty() ? null
+                : idEvaluacionCursoDocenteList.get(0);
+
+        if (evaluacionCursoDocente == null) {
+            return null;
+        }
+
+        // List<PromedioRespuestaDTO> promedios = evaluacionRespuestaRepository
+        // .findPromedioRespuestasByEvaluacionCursoDocente(evaluacionCursoDocente.getId());
+
+        // System.out.println("promedios\n\n" + promedios.size());
+
+        // for (int i = 0; i < promedios.size(); i++) {
+        // Pregunta pregunta =
+        // preguntaRepository.findById(promedios.get(i).getIdPregunta()).orElse(null);
+        // if (pregunta != null) {
+        // promedios.get(i).setNombrePregunta(pregunta.getNombre());
+        // }
+
+        // }
+        List<Object[]> results = evaluacionRespuestaRepository
+                .findPromedioRespuestasByEvaluacionCursoDocente(evaluacionCursoDocente.getId());
+
+        // Convertimos el resultado en objetos PromedioRespuestaDTO
+        List<PromedioRespuestaDTO> dtoList = new ArrayList<>();
+
+        for (Object[] row : results) {
+            Long idEvaluacionCursoDocenteResult = ((BigInteger) row[0]).longValue(); // Conversión a Long
+            Long idPreguntaResult = ((BigInteger) row[1]).longValue(); // Conversión a Long
+            Double promedioValorRespuestaResult = ((BigDecimal) row[2]).doubleValue();
+            String nombrePreguntaResult = (String) row[3];
+
+            PromedioRespuestaDTO dto = new PromedioRespuestaDTO(
+                    idEvaluacionCursoDocenteResult,
+                    idPreguntaResult,
+                    promedioValorRespuestaResult,
+                    nombrePreguntaResult);
+
+            dtoList.add(dto);
+        }
+        EvaluacionEstadisticaDocenteDto estadistica = new EvaluacionEstadisticaDocenteDto();
+
+        estadistica.setTotalRespondidas(evaluacionRespuestaRepository
+                .countEstudiantesByEvaluacionCursoDocente(evaluacionCursoDocente.getId()));
+        estadistica.setTotalEvaluaciones(matriculaRepository
+                .countEstudiantesByCursoAndAnioAndPeriodo(evaluacionCursoDocente.getEvaluacion().getAnio(),
+                        evaluacionCursoDocente.getEvaluacion().getPeriodo(),
+                        evaluacionCursoDocente.getCursoDocente().getCurso().getId()));
+
+        estadistica.setPromedioRespuestas(dtoList);
+        return estadistica;
+    }
+
+    @Override
+    public List<AsignaturaResponseDto> getListAsignaturaByEvaluacion(Long idEvaluacion) {
+        List<Asignatura> asignaturas = evaluacionCursoDocenteRepository
+                .findDistinctAsignaturasByEvaluacionId(idEvaluacion);
+        return asignaturas.stream()
+                .map(asignatura -> AsignaturaResponseDto.builder()
+                        .id(asignatura.getId())
+                        .nombre(asignatura.getNombre_asignatura())
+                        .build())
+                .toList();
+
+    }
+
+    @Override
+    public List<DocenteResponseDto> getListDocenteByAsignaturaEvaluacion(Long idEvaluacion, Long idAsignatura) {
+
+        List<CursoDocente> cursoDocentes = evaluacionCursoDocenteRepository
+                .findCursoDocenteByEvaluacionAndAsignatura(idEvaluacion, idAsignatura);
+
+        return cursoDocentes.stream()
+                .map(cursoDocente -> DocenteResponseDto.builder()
+                        .id(cursoDocente.getDocente().getId())
+                        .nombre(cursoDocente.getDocente().getPersona().getNombre())
+                        .apellido(cursoDocente.getDocente().getPersona().getApellido())
+                        .build())
+                .toList();
+    }
+
 }
