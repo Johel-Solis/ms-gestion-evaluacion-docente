@@ -35,6 +35,10 @@ public interface EvaluacionCursoDocenteRepository extends JpaRepository<Evaluaci
     List<CursoDocente> findCursoDocenteByEvaluacionAndAsignatura(@Param("idEvaluacion") Long idEvaluacion,
             @Param("idAsignatura") Long idAsignatura);
 
+    @Query("SELECT ecd FROM EvaluacionCursoDocente ecd WHERE ecd.evaluacion.id = :idEvaluacion AND ecd.asignatura.id = :idAsignatura")
+    List<EvaluacionCursoDocente> findByEvaluacionAndAsignatura(@Param("idEvaluacion") Long idEvaluacion,
+            @Param("idAsignatura") Long idAsignatura);
+
     @Query(value = "SELECT ecd.* " +
             "FROM evaluacion_curso_docente ecd INNER JOIN (SELECT cd.id as id_cd FROM curso_docente cd WHERE id_docente =?3) cd1 "
             +

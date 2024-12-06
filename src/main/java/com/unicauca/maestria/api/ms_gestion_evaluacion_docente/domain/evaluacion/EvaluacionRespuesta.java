@@ -18,11 +18,10 @@ import com.unicauca.maestria.api.ms_gestion_evaluacion_docente.domain.cuestionar
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 @Data
 @AllArgsConstructor
-@NoArgsConstructor
+// @NoArgsConstructor
 @Builder
 @Entity
 @Table(name = "evaluacion_respuesta_estudiante")
@@ -43,9 +42,12 @@ public class EvaluacionRespuesta {
     @JoinColumn(name = "id_pregunta")
     private Pregunta pregunta;
 
-    
     private int valorRespuesta;
 
     @CreatedDate
     private LocalDateTime fechaCreacion;
+
+    public EvaluacionRespuesta() {
+        fechaCreacion = LocalDateTime.now();
+    }
 }

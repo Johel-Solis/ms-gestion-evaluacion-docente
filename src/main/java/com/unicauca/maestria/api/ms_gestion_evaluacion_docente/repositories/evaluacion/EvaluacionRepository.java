@@ -8,7 +8,7 @@ import com.unicauca.maestria.api.ms_gestion_evaluacion_docente.domain.evaluacion
 
 public interface EvaluacionRepository extends JpaRepository<EvaluacionDocente, Long> {
 
-    EvaluacionDocente findByPeriodoAndAnio(Integer periodo, int anio);
+    EvaluacionDocente findByPeriodoAndAnioAndEstado(Integer periodo, int anio, String estado);
 
     EvaluacionDocente findByEstado(String estado);
 

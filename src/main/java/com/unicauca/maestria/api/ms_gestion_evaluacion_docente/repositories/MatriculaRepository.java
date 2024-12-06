@@ -21,7 +21,7 @@ public interface MatriculaRepository extends JpaRepository<Matricula, Long> {
     public int countEstudiantesMatriculados(Long idCurso);
 
     // cantidad de estudiantes matriculados en un periodo y anio
-    @Query("select count(m.id) from Matricula m where m.anio = ?1 and m.periodo = ?2 and m.estado = 1")
+    @Query("select count(DISTINCT m.id_estudiante) from Matricula m where m.anio = ?1 and m.periodo = ?2 and m.estado = 1")
     public int countEstudiantesMatriculados(int anio, int periodo);
 
     @Query("select distinct m.curso from Matricula m where m.anio = ?1 and m.periodo = ?2 and m.estado = 1 and m.id_estudiante = ?3")

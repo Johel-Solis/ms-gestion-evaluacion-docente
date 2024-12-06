@@ -1,11 +1,11 @@
 package com.unicauca.maestria.api.ms_gestion_evaluacion_docente.domain.evaluacion;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+
 import java.util.List;
 
 import javax.persistence.CascadeType;
-import javax.persistence.Column;
+
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -18,7 +18,6 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
-import org.hibernate.annotations.ManyToAny;
 import org.springframework.data.annotation.CreatedDate;
 
 import com.unicauca.maestria.api.ms_gestion_evaluacion_docente.common.enums.Estado;
@@ -28,7 +27,6 @@ import com.unicauca.maestria.api.ms_gestion_evaluacion_docente.domain.curso.Curs
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 @Data
 @AllArgsConstructor
@@ -58,7 +56,7 @@ public class EvaluacionCursoDocente {
     private Estado estado;
 
     @CreatedDate
-    @Column(updatable = false)
+    // @Column(updatable = false)
     private LocalDateTime fecha_creacion;
 
     @OneToMany(mappedBy = "evaluacionCursoDocente", cascade = CascadeType.ALL, fetch = FetchType.LAZY)

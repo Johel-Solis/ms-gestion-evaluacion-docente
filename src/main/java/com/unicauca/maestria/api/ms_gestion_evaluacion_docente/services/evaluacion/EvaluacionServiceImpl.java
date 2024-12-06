@@ -58,7 +58,6 @@ public class EvaluacionServiceImpl implements EvaluacionService {
     private final EvaluacionSaveMapper evaluacionSaveMapper;
     private final CuestionarioRepository cuestionarioRepository;
     private final EvaluacionRespuestaRepositry evaluacionRespuestaRepository;
-    private final PreguntaRepository preguntaRepository;
     // private final CursoDocenteRepository cursoDocenteRepository;
 
     @Override
@@ -95,11 +94,17 @@ public class EvaluacionServiceImpl implements EvaluacionService {
 
     private List<EvaluacionCursoDocente> saveEvaluacionCursoDocente(int periodo, int anio,
             EvaluacionDocente evauacion) {
+
         List<CursoDocente> cursos_docentes = cursoService.getCursosDocentesByAnioPeriodo(anio, periodo);
+
         List<EvaluacionCursoDocente> evaluacionesCursoDocente = new ArrayList<>();
+
         System.out.println("cursos_docentes\n\n" + cursos_docentes.size());
-        evauacion.setId((long) 1);
-        System.out.println("evauacion\n\n" + evauacion);
+
+        // evauacion.setId((long) 1);
+
+        // System.out.println("evauacion\n\n" + evauacion);
+
         for (CursoDocente cur_D : cursos_docentes) {
             EvaluacionCursoDocente ecd = evaluacionCursoDocenteRepository.save(EvaluacionCursoDocente.builder()
                     .cursoDocente(cur_D)
@@ -107,15 +112,17 @@ public class EvaluacionServiceImpl implements EvaluacionService {
                     .asignatura(cur_D.getCurso().getAsignatura())
                     .estado(Estado.ACTIVO)
                     .build());
-            EvaluacionCursoDocente evaluacionCursoDocente = new EvaluacionCursoDocente();
-            evaluacionesCursoDocente.add(evaluacionCursoDocente);
+            // EvaluacionCursoDocente evaluacionCursoDocente = new EvaluacionCursoDocente();
+
+            evaluacionesCursoDocente.add(ecd);
         }
         return evaluacionesCursoDocente;
     }
 
     @Override
     public EvaluacionResponseDto getEvaluacionDocente(int periodo, int anio) {
-        EvaluacionDocente ev = evaluacionRepository.findByPeriodoAndAnio(periodo, anio);
+        EvaluacionDocente ev = evaluacionRepository.findByPeriodoAndAnioAndEstado(periodo, anio,
+                Estado.ACTIVO.toString());
         if (ev == null) {
             // throw new IllegalArgumentException("Evaluación no encontrada");
             return null;
@@ -389,4 +396,20 @@ public class EvaluacionServiceImpl implements EvaluacionService {
                 .toList();
     }
 
+    public String putEstadoEvaluacion(Long idEvaluacion) {
+        EvaluacionDocente evaluacion = evaluacionRepository.findById(idEvaluacion).orElse(null);
+        if (evaluacion == null) {
+            return "Evaluación no encontrada";
+        }
+        Estado estado = evaluacion.getEstado().equals(Estado.ACTIVO.toString()) ? Estado.INACTIVO : Estado.ACTIVO;
+        if (estado.equals(Estado.ACTIVO)) {
+            EvaluacionDocente eval = evaluacionRepository.findByEstado(Estado.ACTIVO.toString());
+            if (eval != null) {
+                return "Ya existe una evaluación activa";
+            }
+        }
+        evaluacion.setEstado(estado.toString());
+        evaluacionRepository.save(evaluacion);
+        return "Evaluación actualizada";
+    }
 }

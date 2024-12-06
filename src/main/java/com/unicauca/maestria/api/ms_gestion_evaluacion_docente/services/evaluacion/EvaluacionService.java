@@ -36,4 +36,5 @@ public interface EvaluacionService {
 
     public List<DocenteResponseDto> getListDocenteByAsignaturaEvaluacion(Long idEvaluacion, Long idAsignatura);
 
+    public String putEstadoEvaluacion(Long idEvaluacion);
 }

@@ -5,12 +5,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -25,11 +27,13 @@ import com.unicauca.maestria.api.ms_gestion_evaluacion_docente.dtos.evaluacion.E
 import com.unicauca.maestria.api.ms_gestion_evaluacion_docente.dtos.evaluacion.EvaluacionSaveDto;
 import com.unicauca.maestria.api.ms_gestion_evaluacion_docente.dtos.evaluacion.ListEvaluacionCursoDto;
 import com.unicauca.maestria.api.ms_gestion_evaluacion_docente.services.evaluacion.EvaluacionService;
+import com.unicauca.maestria.api.ms_gestion_evaluacion_docente.services.evaluacion.EvaluacionReporte.EvaluacionReporteService;
 import com.unicauca.maestria.api.ms_gestion_evaluacion_docente.services.evaluacion.EvaluacionRespuesta.RespuestaEstudianteService;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.PathVariable;
 
 @RequiredArgsConstructor
 @RestController
@@ -41,14 +45,12 @@ public class EvaluacionController {
     // private final CursoService cursoService;
     private final EvaluacionService evaluacionService;
     private final RespuestaEstudianteService respuestaEstudianteService;
+    private final EvaluacionReporteService evaluacionReporteService;
 
     @GetMapping("/metadata")
     public ResponseEntity<EvaluacionDetailDto> getEvaluacionDetail(
             @RequestParam int anio,
             @RequestParam int periodo) {
-
-        System.out.println("anio: " + anio);
-        System.out.println("periodo: " + periodo);
         EvaluacionDetailDto evaluacionDetailDto = evaluacionService.getMetadataEvaluacionDocente(periodo, anio);
 
         if (evaluacionDetailDto == null) {
@@ -69,6 +71,12 @@ public class EvaluacionController {
             return ResponseEntity.notFound().build();
 
         }
+        return ResponseEntity.ok(entity);
+    }
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<String> cambiarEstado(@PathVariable Long id) {
+        String entity = evaluacionService.putEstadoEvaluacion(id);
         return ResponseEntity.ok(entity);
     }
 
@@ -138,4 +146,12 @@ public class EvaluacionController {
         return ResponseEntity.ok(estadisticas);
     }
 
+    @GetMapping("/estadistica/resportes/")
+    public void obtenerReporteEvaluacionDocente(
+            @RequestParam Long id_evaluacion,
+            HttpServletResponse response)
+            throws Exception {
+        evaluacionReporteService.getReporteEvaluacionGeneral(id_evaluacion, response);
+
+    }
 }
