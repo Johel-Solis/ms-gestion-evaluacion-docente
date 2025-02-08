@@ -1,5 +1,7 @@
 package com.unicauca.maestria.api.ms_gestion_evaluacion_docente.dtos.evaluacion;
 
+import java.util.List;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -16,5 +18,6 @@ public class EvaluacionEstadisticaCursoDto {
     private int totalEvaluaciones;
     private int totalRespondidas;
     private float notaPromedio;
+    private List<String> observaciones;
 
 }

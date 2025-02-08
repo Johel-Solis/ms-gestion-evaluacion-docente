@@ -16,5 +16,6 @@ public class EvaluacionRespuetaSaveDto {
     private Long idEvaluacionCursoDocente;
     private Long idEstudiante;
     private List<RespuestaEstudianteDto> respuestas;
-    
+    private String observacion;
+
 }

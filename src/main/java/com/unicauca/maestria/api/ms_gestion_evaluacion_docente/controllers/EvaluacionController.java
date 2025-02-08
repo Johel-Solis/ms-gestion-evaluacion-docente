@@ -1,9 +1,6 @@
 package com.unicauca.maestria.api.ms_gestion_evaluacion_docente.controllers;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
@@ -104,7 +101,6 @@ public class EvaluacionController {
 
     @PostMapping("/respuesta")
     public ResponseEntity<String> postMethodName(@RequestBody EvaluacionRespuetaSaveDto evaluacionRespuesta) {
-        System.out.println("EvaluacionRespuetaSaveDto: " + evaluacionRespuesta + "\n\n");
         if (respuestaEstudianteService.saveRespuestaEstudiante(evaluacionRespuesta)) {
             return ResponseEntity.ok().build();
         }

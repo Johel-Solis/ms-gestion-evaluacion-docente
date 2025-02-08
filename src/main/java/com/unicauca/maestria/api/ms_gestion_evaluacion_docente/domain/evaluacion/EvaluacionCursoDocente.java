@@ -1,8 +1,9 @@
 package com.unicauca.maestria.api.ms_gestion_evaluacion_docente.domain.evaluacion;
 
 import java.time.LocalDateTime;
-
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.persistence.CascadeType;
 
@@ -62,8 +63,22 @@ public class EvaluacionCursoDocente {
     @OneToMany(mappedBy = "evaluacionCursoDocente", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<EvaluacionRespuesta> respuestas;
 
+    @OneToMany(mappedBy = "evaluacionCursoDocente", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<EvaluacionObservacion> observaciones;
+
     public EvaluacionCursoDocente() {
         estado = Estado.ACTIVO;
         fecha_creacion = LocalDateTime.now();
+    }
+
+    public List<String> getObservacionesListaTexto() {
+        List<String> observacionesStrings = new ArrayList<String>();
+        if (observaciones == null || observaciones.isEmpty()) {
+            return observacionesStrings;
+        }
+        return observaciones.stream()
+                .map(EvaluacionObservacion::getObservacion)
+                .filter(obs -> obs != null && !obs.isEmpty())
+                .collect(Collectors.toList());
     }
 }

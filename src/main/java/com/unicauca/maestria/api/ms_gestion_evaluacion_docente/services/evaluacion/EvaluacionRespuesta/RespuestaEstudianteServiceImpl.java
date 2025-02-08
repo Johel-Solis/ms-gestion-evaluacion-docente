@@ -6,16 +6,17 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 
 import com.unicauca.maestria.api.ms_gestion_evaluacion_docente.domain.Estudiante;
-import com.unicauca.maestria.api.ms_gestion_evaluacion_docente.domain.cuestionarioPregunta.CuestionarioPregunta;
 import com.unicauca.maestria.api.ms_gestion_evaluacion_docente.domain.cuestionarioPregunta.Pregunta;
 import com.unicauca.maestria.api.ms_gestion_evaluacion_docente.domain.evaluacion.EvaluacionCursoDocente;
 import com.unicauca.maestria.api.ms_gestion_evaluacion_docente.domain.evaluacion.EvaluacionDocente;
+import com.unicauca.maestria.api.ms_gestion_evaluacion_docente.domain.evaluacion.EvaluacionObservacion;
 import com.unicauca.maestria.api.ms_gestion_evaluacion_docente.domain.evaluacion.EvaluacionRespuesta;
 import com.unicauca.maestria.api.ms_gestion_evaluacion_docente.dtos.evaluacion.EvaluacionRespuetaSaveDto;
 import com.unicauca.maestria.api.ms_gestion_evaluacion_docente.dtos.evaluacion.RespuestaEstudianteDto;
 import com.unicauca.maestria.api.ms_gestion_evaluacion_docente.repositories.cuestionario.CuestionarioPreguntaRepository;
 import com.unicauca.maestria.api.ms_gestion_evaluacion_docente.repositories.estudiante.EstudianteRepository;
 import com.unicauca.maestria.api.ms_gestion_evaluacion_docente.repositories.evaluacion.EvaluacionCursoDocenteRepository;
+import com.unicauca.maestria.api.ms_gestion_evaluacion_docente.repositories.evaluacion.EvaluacionObservacionRepository;
 import com.unicauca.maestria.api.ms_gestion_evaluacion_docente.repositories.evaluacion.EvaluacionRespuestaRepositry;
 import com.unicauca.maestria.api.ms_gestion_evaluacion_docente.repositories.pregunta.PreguntaRepository;
 
@@ -29,8 +30,8 @@ public class RespuestaEstudianteServiceImpl implements RespuestaEstudianteServic
         private final EstudianteRepository estudianteRepository;
         private final PreguntaRepository preguntaRepository;
         private final CuestionarioPreguntaRepository cuestionarioPreguntaRepository;
-
         private final EvaluacionRespuestaRepositry respuestaEstudianteRepository;
+        private final EvaluacionObservacionRepository evaluacionObservacionRepository;
 
         public boolean saveRespuestaEstudiante(EvaluacionRespuetaSaveDto evaluacionRespuetaSaveDto) {
                 // Obtener la evaluación curso docente
@@ -68,6 +69,13 @@ public class RespuestaEstudianteServiceImpl implements RespuestaEstudianteServic
                 if (respuestasGuardadas.size() != respuestas.size()) {
                         throw new RuntimeException("Error al guardar las respuestas");
                 }
+
+                EvaluacionObservacion eObservacion = new EvaluacionObservacion();
+                eObservacion.setEstudiante(estudiante);
+                eObservacion.setEvaluacionCursoDocente(evaluacionCursoDocente);
+                eObservacion.setObservacion(evaluacionRespuetaSaveDto.getObservacion());
+                evaluacionObservacionRepository.save(eObservacion);
+
                 return true;
         }
 

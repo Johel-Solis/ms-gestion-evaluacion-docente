@@ -18,4 +18,5 @@ public class EvaluacionEstadisticaDocenteDto {
     private int totalEvaluaciones;
     private int totalRespondidas;
     private List<PromedioRespuestaDTO> promedioRespuestas;
+    private List<String> observaciones;
 }

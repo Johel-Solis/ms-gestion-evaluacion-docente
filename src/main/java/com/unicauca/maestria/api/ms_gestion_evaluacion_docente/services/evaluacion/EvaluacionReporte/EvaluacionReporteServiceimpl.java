@@ -31,7 +31,6 @@ public class EvaluacionReporteServiceimpl implements EvaluacionReporteService {
     private final MatriculaRepository matriculaRepository;
     private final EvaluacionRepository evaluacionRepository;
     private final EvaluacionCursoDocenteRepository evaluacionCursoDocenteRepository;
-
     private final EvaluacionRespuestaRepositry evaluacionRespuestaRepository;
 
     @Override
@@ -87,7 +86,7 @@ public class EvaluacionReporteServiceimpl implements EvaluacionReporteService {
             notaCell.setCellStyle(borderedCellStyle); // Nota de la asignatura
 
             // Crear la cabecera de los docentes
-            String[] columnsDocentes = { "Docente", "Nota Evaluación", "N° de Evaluaciones" };
+            String[] columnsDocentes = { "Docente", "Nota Evaluación", "N° de Evaluaciones", "Observaciones" };
             createHeaderRow(sheet, columnsDocentes, rowNum);
             rowNum++; // Moverse a la siguiente fila después de la cabecera
 
@@ -107,6 +106,16 @@ public class EvaluacionReporteServiceimpl implements EvaluacionReporteService {
                 rowDocente.createCell(2).setCellValue(ecd.getTotalRespondidas() + " de " + ecd.getTotalEvaluaciones());
                 // totalCell.setCellStyle(borderedCellStyle);
 
+                CellStyle cellStyle = workbook.createCellStyle();
+                cellStyle.setWrapText(true);
+
+                Cell cell = rowDocente.createCell(3);
+                cell.setCellValue(ecd.getObservaciones().stream()
+                        .filter(obs -> obs != null && !obs.isEmpty()) // Filtrar cadenas nulas o vacías
+                        .reduce((a, b) -> a + " \n" + b) // Concatenar con saltos de línea
+                        .orElse("")); // Si la lista está vacía, retornar una cadena vacía
+
+                cell.setCellStyle(cellStyle);
             }
 
             // Saltar dos filas antes de comenzar con la siguiente asignatura
@@ -114,7 +123,7 @@ public class EvaluacionReporteServiceimpl implements EvaluacionReporteService {
         }
 
         // Ajustar el tamaño de las columnas
-        for (int i = 0; i < 2; i++) { // Ya que solo hay dos columnas por sección (Asignatura/Nota y Docente/Nota)
+        for (int i = 0; i < 4; i++) { // Ya que solo hay dos columnas por sección (Asignatura/Nota y Docente/Nota)
             sheet.autoSizeColumn(i);
         }
 
@@ -176,6 +185,7 @@ public class EvaluacionReporteServiceimpl implements EvaluacionReporteService {
                     .findAverageValorRespuestaByEvaluacionCursoDocente(evaluacionCursoDocente.getId());
             float nota = result != null ? result.floatValue() : 0;
             estadistica.setNotaPromedio(nota);
+            estadistica.setObservaciones(evaluacionCursoDocente.getObservacionesListaTexto());
             estadisticas.add(estadistica);
         }
         return estadisticas;

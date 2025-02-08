@@ -4,19 +4,16 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.time.Year;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import org.apache.poi.ss.formula.functions.T;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
 
 import com.unicauca.maestria.api.ms_gestion_evaluacion_docente.common.enums.Estado;
 import com.unicauca.maestria.api.ms_gestion_evaluacion_docente.domain.asignatura.Asignatura;
 import com.unicauca.maestria.api.ms_gestion_evaluacion_docente.domain.cuestionarioPregunta.Cuestionario;
-import com.unicauca.maestria.api.ms_gestion_evaluacion_docente.domain.cuestionarioPregunta.Pregunta;
 import com.unicauca.maestria.api.ms_gestion_evaluacion_docente.domain.curso.Curso;
 import com.unicauca.maestria.api.ms_gestion_evaluacion_docente.domain.curso.CursoDocente;
 import com.unicauca.maestria.api.ms_gestion_evaluacion_docente.domain.evaluacion.EvaluacionDocente;
@@ -36,16 +33,14 @@ import com.unicauca.maestria.api.ms_gestion_evaluacion_docente.dtos.evaluacion.L
 import com.unicauca.maestria.api.ms_gestion_evaluacion_docente.dtos.pregunta.PromedioRespuestaDTO;
 import com.unicauca.maestria.api.ms_gestion_evaluacion_docente.mappers.evaluacion.EvaluacionSaveMapper;
 import com.unicauca.maestria.api.ms_gestion_evaluacion_docente.repositories.MatriculaRepository;
-import com.unicauca.maestria.api.ms_gestion_evaluacion_docente.repositories.Curso.CursoDocenteRepository;
 import com.unicauca.maestria.api.ms_gestion_evaluacion_docente.repositories.cuestionario.CuestionarioRepository;
 import com.unicauca.maestria.api.ms_gestion_evaluacion_docente.repositories.evaluacion.EvaluacionCursoDocenteRepository;
+import com.unicauca.maestria.api.ms_gestion_evaluacion_docente.repositories.evaluacion.EvaluacionObservacionRepository;
 import com.unicauca.maestria.api.ms_gestion_evaluacion_docente.repositories.evaluacion.EvaluacionRepository;
 import com.unicauca.maestria.api.ms_gestion_evaluacion_docente.repositories.evaluacion.EvaluacionRespuestaRepositry;
-import com.unicauca.maestria.api.ms_gestion_evaluacion_docente.repositories.pregunta.PreguntaRepository;
 import com.unicauca.maestria.api.ms_gestion_evaluacion_docente.services.curso.CursoService;
 
 import lombok.RequiredArgsConstructor;
-import lombok.val;
 
 @RequiredArgsConstructor
 @Service
@@ -58,6 +53,7 @@ public class EvaluacionServiceImpl implements EvaluacionService {
     private final EvaluacionSaveMapper evaluacionSaveMapper;
     private final CuestionarioRepository cuestionarioRepository;
     private final EvaluacionRespuestaRepositry evaluacionRespuestaRepository;
+    private final EvaluacionObservacionRepository evaluacionObservacionRepository;
     // private final CursoDocenteRepository cursoDocenteRepository;
 
     @Override
@@ -357,6 +353,8 @@ public class EvaluacionServiceImpl implements EvaluacionService {
         }
         EvaluacionEstadisticaDocenteDto estadistica = new EvaluacionEstadisticaDocenteDto();
 
+        estadistica.setObservaciones(
+                evaluacionObservacionRepository.findByEvaluacionCursoDocenteId(evaluacionCursoDocente.getId()));
         estadistica.setTotalRespondidas(evaluacionRespuestaRepository
                 .countEstudiantesByEvaluacionCursoDocente(evaluacionCursoDocente.getId()));
         estadistica.setTotalEvaluaciones(matriculaRepository
