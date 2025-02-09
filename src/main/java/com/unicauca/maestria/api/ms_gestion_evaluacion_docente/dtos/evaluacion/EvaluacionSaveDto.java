@@ -30,6 +30,10 @@ public class EvaluacionSaveDto {
 
     private Estado estado;
 
+    private String fecha_inicio;
+
+    private String fecha_fin;
+
     public EvaluacionSaveDto() {
         estado = Estado.ACTIVO;
     }

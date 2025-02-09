@@ -14,8 +14,13 @@ public class EvaluacionResponseDto {
     private Long id;
     private int anio;
     private int periodo;
+
     private String nombreCuestionario;
     private int cantidadAsignaturas;
     private String estado;
+
+    private String fechaCreacion;
+    private String fechaInicio;
+    private String fechaFin;
 
 }

@@ -34,6 +34,10 @@ public class EvaluacionDocente {
     @ManyToOne
     @JoinColumn(name = "id_cuestionario")
     private Cuestionario cuestionario;
+
+    private String fecha_inicio;
+    private String fecha_fin;
+
     @CreatedDate
     private LocalDateTime fecha_creacion;
     @CreatedDate

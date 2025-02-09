@@ -73,6 +73,8 @@ public class EvaluacionServiceImpl implements EvaluacionService {
         }
 
         System.out.println("guardado en la base de datoos\n\n");
+        System.out.println("fecha_inicio\n\n" + evaluacion.getFecha_inicio());
+        System.out.println("fecha_fin\n\n" + evaluacion.getFecha_fin());
         EvaluacionDocente ev = evaluacionSaveMapper.toEntity(evaluacion);
         Cuestionario cuestionario = cuestionarioRepository.findById(evaluacion.getId_cuestionario()).orElse(null);
         if (cuestionario == null) {
@@ -199,6 +201,9 @@ public class EvaluacionServiceImpl implements EvaluacionService {
                 .nombreCuestionario(evaluacionEntity.getCuestionario().getNombre())
                 .cantidadAsignaturas(cantidadAsignaturas)
                 .estado(evaluacionEntity.getEstado())
+                .fechaCreacion(evaluacionEntity.getFecha_creacion().toString())
+                .fechaInicio(evaluacionEntity.getFecha_inicio())
+                .fechaFin(evaluacionEntity.getFecha_fin())
                 .build();
     }
 
