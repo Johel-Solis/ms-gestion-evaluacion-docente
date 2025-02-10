@@ -31,6 +31,7 @@ import com.unicauca.maestria.api.ms_gestion_evaluacion_docente.dtos.evaluacion.E
 import com.unicauca.maestria.api.ms_gestion_evaluacion_docente.dtos.evaluacion.EvaluacionSaveDto;
 import com.unicauca.maestria.api.ms_gestion_evaluacion_docente.dtos.evaluacion.ListEvaluacionCursoDto;
 import com.unicauca.maestria.api.ms_gestion_evaluacion_docente.dtos.pregunta.PromedioRespuestaDTO;
+import com.unicauca.maestria.api.ms_gestion_evaluacion_docente.exceptions.EvaluacionActivaException;
 import com.unicauca.maestria.api.ms_gestion_evaluacion_docente.mappers.evaluacion.EvaluacionSaveMapper;
 import com.unicauca.maestria.api.ms_gestion_evaluacion_docente.repositories.MatriculaRepository;
 import com.unicauca.maestria.api.ms_gestion_evaluacion_docente.repositories.cuestionario.CuestionarioRepository;
@@ -323,19 +324,6 @@ public class EvaluacionServiceImpl implements EvaluacionService {
             return null;
         }
 
-        // List<PromedioRespuestaDTO> promedios = evaluacionRespuestaRepository
-        // .findPromedioRespuestasByEvaluacionCursoDocente(evaluacionCursoDocente.getId());
-
-        // System.out.println("promedios\n\n" + promedios.size());
-
-        // for (int i = 0; i < promedios.size(); i++) {
-        // Pregunta pregunta =
-        // preguntaRepository.findById(promedios.get(i).getIdPregunta()).orElse(null);
-        // if (pregunta != null) {
-        // promedios.get(i).setNombrePregunta(pregunta.getNombre());
-        // }
-
-        // }
         List<Object[]> results = evaluacionRespuestaRepository
                 .findPromedioRespuestasByEvaluacionCursoDocente(evaluacionCursoDocente.getId());
 
@@ -402,13 +390,14 @@ public class EvaluacionServiceImpl implements EvaluacionService {
     public String putEstadoEvaluacion(Long idEvaluacion) {
         EvaluacionDocente evaluacion = evaluacionRepository.findById(idEvaluacion).orElse(null);
         if (evaluacion == null) {
-            return "Evaluación no encontrada";
+            throw new IllegalArgumentException("Evaluación no encontrada");
         }
         Estado estado = evaluacion.getEstado().equals(Estado.ACTIVO.toString()) ? Estado.INACTIVO : Estado.ACTIVO;
         if (estado.equals(Estado.ACTIVO)) {
             EvaluacionDocente eval = evaluacionRepository.findByEstado(Estado.ACTIVO.toString());
             if (eval != null) {
-                return "Ya existe una evaluación activa";
+                throw new EvaluacionActivaException("Ya existe una evaluación activa");
+
             }
         }
         evaluacion.setEstado(estado.toString());

@@ -5,6 +5,7 @@ import java.util.List;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -23,6 +24,7 @@ import com.unicauca.maestria.api.ms_gestion_evaluacion_docente.dtos.evaluacion.E
 import com.unicauca.maestria.api.ms_gestion_evaluacion_docente.dtos.evaluacion.EvaluacionRespuetaSaveDto;
 import com.unicauca.maestria.api.ms_gestion_evaluacion_docente.dtos.evaluacion.EvaluacionSaveDto;
 import com.unicauca.maestria.api.ms_gestion_evaluacion_docente.dtos.evaluacion.ListEvaluacionCursoDto;
+import com.unicauca.maestria.api.ms_gestion_evaluacion_docente.exceptions.EvaluacionActivaException;
 import com.unicauca.maestria.api.ms_gestion_evaluacion_docente.services.evaluacion.EvaluacionService;
 import com.unicauca.maestria.api.ms_gestion_evaluacion_docente.services.evaluacion.EvaluacionReporte.EvaluacionReporteService;
 import com.unicauca.maestria.api.ms_gestion_evaluacion_docente.services.evaluacion.EvaluacionRespuesta.RespuestaEstudianteService;
@@ -73,8 +75,17 @@ public class EvaluacionController {
 
     @PatchMapping("/{id}")
     public ResponseEntity<String> cambiarEstado(@PathVariable Long id) {
-        String entity = evaluacionService.putEstadoEvaluacion(id);
-        return ResponseEntity.ok(entity);
+        try {
+            evaluacionService.putEstadoEvaluacion(id);
+            return ResponseEntity.ok("Estado de la evaluación cambiado correctamente");
+        } catch (EvaluacionActivaException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Ocurrió un error inesperado");
+        }
+
     }
 
     @GetMapping("/list")
